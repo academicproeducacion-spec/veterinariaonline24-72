@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VETERINARIA ONLINE 24/7 Y ASESORIA EN ZOOTECNIA Y AGRONOMÍA</title>
+        <link rel="stylesheet" href="styles.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="preload" as="image" href="1a (2).jpeg" imagesizes="100vw" fetchpriority="high">
+        <link rel="preload" as="image" href="1a (3).jpeg" imagesizes="100vw">
+        <link rel="preload" as="image" href="1a (4).jpeg" imagesizes="100vw">
+    </head>
+<body>
+    <!-- Filtro SVG para mejorar nitidez de imágenes -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+        <defs>
+            <filter id="image-sharpen">
+                <!-- Kernel de nitidez (Unsharp Mask simple) -->
+                <feConvolveMatrix order="3" edgeMode="duplicate"
+                    kernelMatrix="0 -1 0 -1 5 -1 0 -1 0" />
+            </filter>
+        </defs>
+    </svg>
+    <!-- Header Principal -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo-nav-container">
+                    <img src="LOGONUEVO.png" alt="Veterinaria Online 24/7" class="logo">
+                    <ul class="nav-menu">
+                        <li><a href="#inicio" class="nav-link"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li><a href="#quienes-somos" class="nav-link"><i class="fas fa-users"></i> Quiénes Somos</a></li>
+                        <li><a href="#shorts" class="nav-link"><i class="fas fa-video"></i> Shorts</a></li>
+                        <li><a href="#precios" class="nav-link"><i class="fas fa-tags"></i> Precios y Servicios</a></li>
+                <li><a href="#blog" class="nav-link"><i class="fas fa-blog"></i> Blog</a></li>
+                        <li><a href="#plataformas" class="nav-link"><i class="fas fa-video"></i> Plataformas</a></li>
+                        <li><a href="#contacto" class="nav-link"><i class="fas fa-phone"></i> Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Sección Hero -->
+    <section id="inicio" class="hero-section">
+        <!-- Slideshow de fondo del hero -->
+        <div class="hero-slideshow" aria-hidden="true"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-logo-container">
+                    <img src="LOGONUEVO.png" alt="Logo Veterinaria Online 24/7" class="hero-logo">
+                </div>
+                <div class="hero-text-block">
+                    <h1 class="hero-title">VETERINARIA ONLINE 24/7</h1>
+                    <h2 class="hero-subtitle">Y ASESORÍA EN ZOOTECNIA Y AGRONOMÍA</h2>
+                    <p class="hero-description">Consultas veterinarias profesionales por videollamada desde cualquier parte del mundo, disponibles las 24 horas del día, los 7 días de la semana.</p>
+                    <div class="hero-buttons">
+                        <a href="#precios" class="btn-primary">
+                            <i class="fas fa-video"></i>
+                            Consulta Ahora
+                        </a>
+                        <a href="#quienes-somos" class="btn-secondary">
+                            <i class="fas fa-info-circle"></i>
+                            Conoce Más
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <section id="shorts" class="shorts-section">
+        <div class="container">
+            <h2 class="section-title">Shorts Profesionales</h2>
+            <p class="section-subtitle">Datos curiosos y útiles sobre mascotas, campo y zootecnia</p>
+            <div class="shorts-grid"></div>
+        </div>
+    </section>
+
+    <script>
+    (function(){
+        var grid=document.querySelector('.shorts-grid');
+        var addBtn=document.getElementById('add-short-btn');
+        var fileInput=document.getElementById('short-file-input');
+        var defaultShorts=[
+            {title:'Extraccion seminal en equino',category:'Mascotas',videoSrc:'IMG/v1.mp4'},
+            {title:'Extraccion seminal en equino monta natural',category:'Mascotas',videoSrc:'IMG/v2.mp4'},
+            {title:'Detección de preñéz en yegua con ecógrafo',category:'Mascotas',videoSrc:'IMG/v3.mp4'},
+            {title:'Cómo realizar una aguja hechiza para cirugía',category:'Mascotas',videoSrc:'IMG/v4.mp4'}
+        ];
+        defaultShorts.forEach(renderCard);
+        var db;
+        function openDB(){
+            return new Promise(function(resolve,reject){
+                if(!('indexedDB' in window)) return resolve(null);
+                var request=indexedDB.open('shortsDB',1);
+                request.onupgradeneeded=function(e){
+                    var d=e.target.result;
+                    if(!d.objectStoreNames.contains('videos')){
+                        d.createObjectStore('videos',{keyPath:'id',autoIncrement:true});
+                    }
+                };
+                request.onsuccess=function(e){resolve(e.target.result)};
+                request.onerror=function(){resolve(null)};
+            });
+        }
+        function saveVideo(file,title,category){
+            return new Promise(function(resolve){
+                if(!db){resolve(null);return}
+                var tx=db.transaction(['videos'],'readwrite');
+                var store=tx.objectStore('videos');
+                var data={title:title,category:category,blob:file,createdAt:Date.now()};
+                var req=store.add(data);
+                req.onsuccess=function(){resolve(req.result)};
+                req.onerror=function(){resolve(null)};
+            });
+        }
+        function getAllVideos(){
+            return new Promise(function(resolve){
+                if(!db){resolve([]);return}
+                var tx=db.transaction(['videos'],'readonly');
+                var store=tx.objectStore('videos');
+                var req=store.getAll();
+                req.onsuccess=function(){resolve(req.result||[])};
+                req.onerror=function(){resolve([])};
+            });
+        }
+        function clearAllVideos(){
+            return new Promise(function(resolve){
+                if(!db){resolve(false);return}
+                var tx=db.transaction(['videos'],'readwrite');
+                var store=tx.objectStore('videos');
+                var req=store.clear();
+                req.onsuccess=function(){resolve(true)};
+                req.onerror=function(){resolve(false)};
+            });
+        }
+        function renderCard(entry){
+            var card=document.createElement('div');
+            card.className='short-card';
+            var badges=document.createElement('div');
+            badges.className='short-badges';
+            var badge=document.createElement('span');
+            badge.className='short-badge';
+            badge.textContent=entry.category||'Mascotas';
+            badges.appendChild(badge);
+            var mediaEl;
+            if (entry.blob || entry.videoSrc){
+                mediaEl=document.createElement('video');
+                mediaEl.className='short-video';
+                mediaEl.muted=true; mediaEl.loop=true; mediaEl.playsInline=true; mediaEl.preload='auto';
+                if (entry.blob){
+                    var url=URL.createObjectURL(entry.blob);
+                    mediaEl.src=url;
+                } else if (entry.videoSrc){
+                    mediaEl.src=entry.videoSrc;
+                }
+                try { mediaEl.load(); } catch(e) {}
+                mediaEl.addEventListener('loadeddata', function(){
+                    try { if (mediaEl.paused) mediaEl.currentTime = 0.001; } catch(e) {}
+                });
+                if (entry.poster) mediaEl.poster=entry.poster;
+            } else {
+                mediaEl=document.createElement('img');
+                mediaEl.className='short-image';
+                mediaEl.src=entry.poster||'';
+            }
+            var overlay=document.createElement('div');
+            overlay.className='short-overlay';
+            var h3=document.createElement('h3');
+            h3.className='short-title';
+            h3.textContent=entry.title||'Short';
+            overlay.appendChild(h3);
+            card.appendChild(badges);
+            card.appendChild(mediaEl);
+            card.appendChild(overlay);
+            if (mediaEl.tagName==='VIDEO'){
+                mediaEl.addEventListener('mouseenter',function(){
+                    try { mediaEl.play(); } catch(e) {}
+                });
+                mediaEl.addEventListener('mouseleave',function(){
+                    try {
+                        if (document.fullscreenElement) return;
+                        mediaEl.pause();
+                    } catch(e) {}
+                });
+                mediaEl.addEventListener('click',function(){
+                    try { if(mediaEl.paused) mediaEl.play(); else mediaEl.pause(); } catch(e) {}
+                });
+                mediaEl.addEventListener('dblclick', function(){
+                    try {
+                        if (!document.fullscreenElement) mediaEl.requestFullscreen?.();
+                        else document.exitFullscreen?.();
+                    } catch(e) {}
+                });
+                mediaEl.addEventListener('touchstart', function(){
+                    try { mediaEl.play(); } catch(e) {}
+                }, { passive: true });
+                mediaEl.addEventListener('error', function(){
+                    try { mediaEl.src = 'https://www.w3schools.com/html/mov_bbb.mp4'; mediaEl.load(); } catch(e) {}
+                });
+            }
+            var controls = document.querySelector('.shorts-controls');
+            if (controls) {
+                grid.insertBefore(card, controls);
+            } else {
+                grid.appendChild(card);
+            }
+        }
+        function handleFiles(files){
+            Array.prototype.forEach.call(files,function(file){
+                if(!file||!file.type||file.type.indexOf('video')!==0)return;
+                var title=file.name.replace(/\.[^/.]+$/,'');
+                var category='Mascotas';
+                saveVideo(file,title,category).then(function(){renderCard({title:title,category:category,blob:file})});
+            });
+        }
+        function updateVideoTitle(oldTitle, newTitle){
+            if(!db) return;
+            getAllVideos().then(function(items){
+                var match = items.find(function(it){ return (it.title||'') === oldTitle; });
+                if(match){
+                    var tx = db.transaction(['videos'],'readwrite');
+                    var store = tx.objectStore('videos');
+                    var updated = Object.assign({}, match, { title: newTitle });
+                    store.put(updated);
+                    document.querySelectorAll('.short-title').forEach(function(el){
+                        if(el.textContent === oldTitle) el.textContent = newTitle;
+                    });
+                }
+            });
+        }
+        if (addBtn && fileInput) {
+            addBtn.addEventListener('click',function(){fileInput.click()});
+            fileInput.addEventListener('change',function(){handleFiles(fileInput.files);fileInput.value=''});
+        }
+        openDB().then(function(res){
+            db=res;
+            getAllVideos().then(function(items){
+                items.sort(function(a,b){return b.createdAt-a.createdAt});
+                if (items.length){
+                    grid.innerHTML='';
+                    items.forEach(renderCard);
+                }
+            });
+        });
+    })();
+    </script>
+
+    <!-- Sección Quiénes Somos -->
+    <section id="quienes-somos" class="about-section">
+        <div class="container">
+            <h2 class="section-title">Quiénes Somos</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <div class="founder-info">
+                        <div class="founder-card">
+                            <div class="founder-image">
+                                <img src="QUIENESSOMOSIMAGEN.jpeg" alt="MVZ Miguel Ángel Sánchez Amaya" class="founder-photo">
+                            </div>
+                            <div class="founder-details">
+                                <h3>MVZ Miguel Ángel Sánchez Amaya</h3>
+                                <p class="founder-title">Médico Veterinario y Zootecnista - Fundador</p>
+                                <p class="founder-bio">Médico Veterinario y Zootecnista egresado de la Universidad Cooperativa de Colombia, apasionado por el bienestar animal y la educación responsable al propietario. Atiendo con enfoque integral, preventivo y guiado para que cada tutor tome decisiones informadas. Experiencia con especies menores y mayores en nutrición, bienestar, manejo productivo e interpretación de exámenes. Fundé <strong>Veterinaria Online 24/7</strong> (Villavicencio y Meta) para brindar asesoría virtual y presencial clara y honesta que evita procedimientos innecesarios y costos excesivos.</p>
+                                
+                                <p class="founder-bio">Brindamos soporte técnico permanente 24/7 mediante videollamada y mensajería, con enfoque ético, de calidad y cercanía. Ofrecemos soluciones oportunas basadas en conocimiento científico y experiencia técnica para orientar decisiones informadas, prevenir problemas y mejorar procesos productivos, desde cualquier lugar y en cualquier momento.</p>
+                                <div class="credentials">
+                                    <div class="credential-item">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span>Médico Veterinario Zootecnista</span>
+                                    </div>
+                                    <div class="credential-item">
+                                        <i class="fas fa-star"></i>
+                                        <span>Fundador de Veterinaria Online 24/7</span>
+                                    </div>
+                                    <div class="credential-item">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Especialista en Atención Veterinaria Global</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mission-vision">
+                        <div class="mission">
+                            <h4>MISIÓN</h4>
+                            <p>Brindar servicios profesionales de consulta veterinaria en línea, asesoría zootécnica y orientación agronómica, disponibles las 24 horas, con el fin de ofrecer soluciones confiables, oportunas y basadas en evidencia científica. Nuestro compromiso es acompañar a productores, propietarios y cuidadores en la toma de decisiones que mejoren el bienestar animal, optimicen la productividad y promuevan sistemas agropecuarios sostenibles.</p>
+                        </div>
+                        <div class="vision">
+                            <h4>VISIÓN</h4>
+                            <p>Ser la plataforma líder en asesoría veterinaria digital y consultoría agropecuaria integral en Colombia y Latinoamérica, reconocida por su atención continua, precisión técnica y enfoque humano. Aspiramos a transformar la manera en que los productores y propietarios acceden al conocimiento profesional, ofreciendo una experiencia innovadora, accesible y efectiva que impulse el bienestar animal y el desarrollo sostenible en el sector rural.</p>
+                        </div>
+                        <p class="brand-tagline">TU ALIADO VETERINARIO, TODO EL DÍA, TODOS LOS DÍAS.</p>
+                        <div class="brand-values">
+                            <div class="values-card">
+                                <h4>✨ Quiénes somos</h4>
+                                <p class="who-we-are">Veterinaria Online 24-7 es una plataforma profesional que conecta a propietarios, productores y estudiantes con atención veterinaria, asesoría zootécnica y orientación agronómica inmediata por videollamada y mensajería. Nuestro equipo acompaña decisiones con criterios técnicos, lectura de exámenes y planes de mejora, promoviendo bienestar animal, eficiencia y sostenibilidad, desde cualquier lugar y en cualquier momento.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Atención Continua</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">3+</div>
+                        <div class="stat-label">Países Atendidos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">500</div>
+                        <div class="stat-label">Mascotas Atendidas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Plataformas Disponibles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Galería -->
+    <section id="galeria" class="gallery-section">
+        <div class="container">
+            <h2 class="section-title">Nuestra Galería</h2>
+            <p class="section-subtitle">Conoce más sobre nuestro trabajo y servicios</p>
+            <div class="gallery-grid">
+                <div class="gallery-item" style="--animation-order: 0;">
+                    <img src="IMG/IMG1.jpeg" alt="Imagen veterinaria 1" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 1;">
+                    <img src="IMG/IMG2.jpeg" alt="Imagen veterinaria 2" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 2;">
+                    <img src="IMG/IMG3.jpeg" alt="Imagen veterinaria 3" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 3;">
+                    <img src="IMG/IMG4.jpeg" alt="Imagen veterinaria 4" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 4;">
+                    <img src="IMG/IMG5.jpeg" alt="Imagen veterinaria 5" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 5;">
+                    <img src="IMG/IMG6 (1).jpeg" alt="Imagen veterinaria 6" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 6;">
+                    <img src="IMG/IMG7.jpeg" alt="Imagen veterinaria 7" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 7;">
+                    <img src="IMG/IMG8.jpeg" alt="Imagen veterinaria 8" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 8;">
+                    <img src="IMG/IMG9.jpeg" alt="Imagen veterinaria 9" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 9;">
+                    <img src="IMG/IMG10.jpeg" alt="Imagen veterinaria 10" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 10;">
+                    <img src="IMG/IMG11.jpeg" alt="Imagen veterinaria 11" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 11;">
+                    <img src="IMG/IMG12 (2).jpeg" alt="Imagen veterinaria 12" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 12;">
+                    <img src="IMG/IMG13.jpeg" alt="Imagen veterinaria 13" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 13;">
+                    <img src="IMG/IMG14.jpeg" alt="Imagen veterinaria 14" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item" style="--animation-order: 14;">
+                    <img src="IMG/IMG15.jpeg" alt="Imagen veterinaria 15" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Comentarios (con calificación por estrellas) -->
+    <section id="testimonios" class="reviews-section">
+        <div class="container">
+            <div class="reviews-header">
+                <h2 class="section-title">Comentarios de Clientes</h2>
+                <p class="section-subtitle">Califica el servicio y comparte tu experiencia</p>
+                <div class="reviews-summary">
+                    <div class="average-rating">
+                        <div class="avg-number" id="reviews-average-number">0.0</div>
+                        <div class="avg-stars" id="reviews-average-stars" aria-label="Promedio de calificación"></div>
+                        <div class="avg-count"><span id="reviews-count">0</span> comentarios</div>
+                    </div>
+                    <div class="rating-distribution" aria-label="Distribución por estrellas">
+                        <div class="distribution-row" data-stars="5">
+                            <span class="label">5 estrellas</span>
+                            <div class="bar"><div class="fill" id="dist-5" style="width:0%"></div></div>
+                            <span class="count" id="count-5">0</span>
+                        </div>
+                        <div class="distribution-row" data-stars="4">
+                            <span class="label">4 estrellas</span>
+                            <div class="bar"><div class="fill" id="dist-4" style="width:0%"></div></div>
+                            <span class="count" id="count-4">0</span>
+                        </div>
+                        <div class="distribution-row" data-stars="3">
+                            <span class="label">3 estrellas</span>
+                            <div class="bar"><div class="fill" id="dist-3" style="width:0%"></div></div>
+                            <span class="count" id="count-3">0</span>
+                        </div>
+                        <div class="distribution-row" data-stars="2">
+                            <span class="label">2 estrellas</span>
+                            <div class="bar"><div class="fill" id="dist-2" style="width:0%"></div></div>
+                            <span class="count" id="count-2">0</span>
+                        </div>
+                        <div class="distribution-row" data-stars="1">
+                            <span class="label">1 estrella</span>
+                            <div class="bar"><div class="fill" id="dist-1" style="width:0%"></div></div>
+                            <span class="count" id="count-1">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reviews-controls">
+                <div class="filters">
+                    <button class="filter-chip active" data-filter="all">Todas</button>
+                    <button class="filter-chip" data-filter="5">5★</button>
+                    <button class="filter-chip" data-filter="4">4★</button>
+                    <button class="filter-chip" data-filter="3">3★</button>
+                    <button class="filter-chip" data-filter="2">2★</button>
+                    <button class="filter-chip" data-filter="1">1★</button>
+                </div>
+                <div class="sort">
+                    <label for="reviews-sort">Ordenar:</label>
+                    <select id="reviews-sort">
+                        <option value="recent" selected>Más recientes</option>
+                        <option value="rating">Mejor calificados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="reviews-list" class="reviews-list" aria-live="polite"></div>
+
+            <div class="reviews-form-card">
+                <h3>Dejar un comentario</h3>
+                <form id="review-form" class="review-form">
+                    <div class="form-row">
+                        <label for="review-name">Nombre</label>
+                        <input type="text" id="review-name" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-row">
+                        <label>Calificación</label>
+                        <div id="review-stars" class="input-stars" aria-label="Califica de 1 a 5 estrellas">
+                            <button type="button" class="star" data-value="1" aria-label="1 estrella"><i class="fas fa-star"></i></button>
+                            <button type="button" class="star" data-value="2" aria-label="2 estrellas"><i class="fas fa-star"></i></button>
+                            <button type="button" class="star" data-value="3" aria-label="3 estrellas"><i class="fas fa-star"></i></button>
+                            <button type="button" class="star" data-value="4" aria-label="4 estrellas"><i class="fas fa-star"></i></button>
+                            <button type="button" class="star" data-value="5" aria-label="5 estrellas"><i class="fas fa-star"></i></button>
+                        </div>
+                        <input type="hidden" id="review-rating" value="0">
+                    </div>
+                    <div class="form-row">
+                        <label for="review-text">Comentario</label>
+                        <textarea id="review-text" rows="4" placeholder="Cuéntanos tu experiencia" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Enviar comentario</button>
+                    </div>
+                </form>
+                <p class="reviews-hint">Los comentarios se clasifican por estrellas. Se moderan por respeto y claridad.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Preguntas Frecuentes -->
+    <section id="faq" class="faq-section">
+        <div class="container">
+            <h2 class="section-title">Preguntas Frecuentes</h2>
+            <p class="section-subtitle">Servicio de asesoría virtual: orienta, interpreta exámenes y guía decisiones. No se realizan diagnósticos ni se formula medicación.</p>
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>¿La consulta virtual reemplaza una consulta presencial?</summary>
+                    <div class="faq-answer">
+                        <p>No. No sustituye el examen físico ni el diagnóstico clínico presencial. Es una asesoría para orientar, analizar información e interpretar exámenes.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Usted da diagnósticos o formula medicamentos?</summary>
+                    <div class="faq-answer">
+                        <p>No. No realizo diagnósticos ni prescribo tratamientos.</p>
+                        <ul>
+                            <li>Oriento sobre posibles causas generales.</li>
+                            <li>Interpreto exámenes clínicos y de laboratorio.</li>
+                            <li>Recomiendo pruebas necesarias antes de cualquier tratamiento.</li>
+                            <li>Evito malas decisiones, sobrecostos o tratamientos innecesarios.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué sí incluye una consulta virtual?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Revisión de fotos, videos e historial/síntomas.</li>
+                            <li>Interpretación profesional de exámenes (hemograma, copro, bioquímica, cultivos, etc.).</li>
+                            <li>Acompañamiento para entender tratamientos de otros profesionales.</li>
+                            <li>Orientación en bienestar, nutrición y manejo.</li>
+                            <li>Recomendación de cuándo acudir a una clínica presencial.</li>
+                            <li>Prevención de estafas o gastos innecesarios.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué animales atiende en la modalidad virtual?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Bovinos, equinos, porcinos, ovinos y caprinos.</li>
+                            <li>Mascotas (perros y gatos) en casos orientativos o interpretación de exámenes.</li>
+                            <li>Aves de producción.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué NO hago en una consulta virtual?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Diagnósticos clínicos definitivos.</li>
+                            <li>Formulación de medicamentos.</li>
+                            <li>Procedimientos médicos.</li>
+                            <li>Certificados médicos o permisos sanitarios.</li>
+                            <li>Diagnósticos reproductivos por palpación o ecografía.</li>
+                            <li>Tratamientos farmacológicos directos.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué asesoría brinda en Zootecnia?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Evaluación del sistema productivo.</li>
+                            <li>Manejo reproductivo, registros y planificación.</li>
+                            <li>Nutrición en trópico bajo.</li>
+                            <li>Bienestar y manejo del hato.</li>
+                            <li>Optimización de crecimiento y producción.</li>
+                            <li>Análisis de instalaciones y potreros.</li>
+                        </ul>
+                        <p>No realizo visitas ni certificaciones oficiales sin presencia física.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué asesoría brinda en Agronomía?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Evaluación de pasturas.</li>
+                            <li>Recomendación de especies forrajeras según zona.</li>
+                            <li>Manejo de suelos aplicado a ganadería.</li>
+                            <li>Sistemas silvopastoriles básicos.</li>
+                            <li>Guía de suplementación en épocas críticas.</li>
+                        </ul>
+                        <p>No realizo formulación de agroquímicos, diagnósticos de plagas ni planes oficiales.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Cómo funciona la consulta virtual?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Agenda y envías evidencia (fotos, videos, exámenes).</li>
+                            <li>Llamada o videollamada según el plan.</li>
+                            <li>Analizo la información y explico el caso.</li>
+                            <li>Recibes un informe guía con recomendaciones, exámenes sugeridos, señales de alarma y ruta a seguir.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué pasa si el caso es urgente?</summary>
+                    <div class="faq-answer">
+                        <p>Se prioriza la salud del animal: te indico acudir de inmediato a un veterinario presencial.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Cómo se realizan los pagos?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Nequi: 310 206 9446</li>
+                            <li>Transferencia bancaria</li>
+                            <li>Link de pago (si aplica)</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Puedo enviar videos o fotos antes de la consulta?</summary>
+                    <div class="faq-answer">
+                        <p>Sí. Incluye edad, especie, tiempo de evolución y tratamientos previos (si los hay).</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué garantías ofrece la asesoría?</summary>
+                    <div class="faq-answer">
+                        <ul>
+                            <li>Profesionalismo y ética.</li>
+                            <li>Información confiable y basada en evidencia.</li>
+                            <li>Acompañamiento para decisiones informadas.</li>
+                            <li>No se garantiza curación ni diagnóstico presencial.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Precios -->
+    <section id="precios" class="pricing-section">
+        <div class="container">
+            <h2 class="section-title">Precios y Servicios</h2>
+            <p class="section-subtitle">Paquetes en Pesos Colombianos (COP)</p>
+            <div class="pricing-grid">
+                <!-- Planes originales -->
+                <div class="pricing-card basic">
+                    <div class="pricing-header">
+                        <h3>Consulta Básica</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">35.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consulta por videollamada</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Orientación inicial sin diagnóstico ni prescripción</li>
+                            <li><i class="fas fa-check"></i> Recomendaciones generales de cuidado</li>
+                            <li><i class="fas fa-check"></i> Todas las plataformas disponibles</li>
+                            <li><i class="fas fa-check"></i> Soporte 24/7</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card premium featured">
+                    <div class="featured-badge">Más Popular</div>
+                    <div class="pricing-header">
+                        <h3>Consulta Premium</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">45.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consulta por videollamada</li>
+                            <li><i class="fas fa-check"></i> Revisión detallada del caso (sin diagnóstico ni prescripción)</li>
+                            <li><i class="fas fa-check"></i> Plan de cuidados y hábitos recomendados</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Explicación de exámenes enviados (si aplica)</li>
+                            <li><i class="fas fa-check"></i> Asesoría nutricional</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card professional">
+                    <div class="pricing-header">
+                        <h3>Asesoría Zootecnia</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">110.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consultoría especializada</li>
+                            <li><i class="fas fa-check"></i> Manejo de producción animal</li>
+                            <li><i class="fas fa-check"></i> Optimización de recursos</li>
+                            <li><i class="fas fa-check"></i> Plan de mejora productiva</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Reportes técnicos</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card enterprise">
+                    <div class="pricing-header">
+                        <h3>Asesoría Agronomía</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">120.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consultoría agrícola</li>
+                            <li><i class="fas fa-check"></i> Análisis de cultivos y suelos</li>
+                            <li><i class="fas fa-check"></i> Optimización de producción</li>
+                            <li><i class="fas fa-check"></i> Orientación sobre prácticas de fertilización</li>
+                            <li><i class="fas fa-check"></i> Manejo general de plagas y enfermedades (sin prescripción de productos)</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+
+                <!-- Paquetes nuevos -->
+                <div class="pricing-card basic">
+                    <div class="pricing-header">
+                        <h3>📦 Consulta Virtual Express</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">20.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consulta por WhatsApp</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Para dudas rápidas</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card premium">
+                    <div class="pricing-header">
+                        <h3>📦 Consulta Veterinaria Completa</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">55.000</span>
+                            <span class="period">por consulta</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consulta por videollamada</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Revisión de exámenes y explicación en lenguaje claro (sin diagnóstico)</li>
+                            <li><i class="fas fa-check"></i> Recomendaciones personalizadas</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card professional">
+                    <div class="pricing-header">
+                        <h3>📦 Plan Finca (Productores)</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">A cotizar</span>
+                            
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Evaluación del sistema productivo</li>
+                            <li><i class="fas fa-check"></i> Recomendaciones para mejorar producción y bienestar</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+                
+                <div class="pricing-card enterprise">
+                    <div class="pricing-header">
+                        <h3>📦 Interpretación de Exámenes</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">15.000</span>
+                            <span class="period">por examen</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Explicación general de hemograma, copro y bioquímica (sin diagnóstico)</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+
+                <div class="pricing-card onsite">
+                    <div class="pricing-header">
+                        <h3>📦 Consulta Presencial</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">50.000</span>
+                            <span class="period">por visita</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Desplazamiento a tu sitio (Villavicencio y Meta)</li>
+                            <li><i class="fas fa-check"></i> Examen anamnéstico y evaluación general</li>
+                            <li><i class="fas fa-check"></i> Orientación sobre qué medicamentos comprar (sin prescripción ni venta)</li>
+                            <li><i class="fas fa-check"></i> Guía de exámenes necesarios y ruta a seguir</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> No se realizan cirugías ni procedimientos quirúrgicos</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+
+                <div class="pricing-card premium featured">
+                    <div class="featured-badge">Clientes Premium Leales</div>
+                    <div class="pricing-header">
+                        <h3>📦 Mensualidad Consultas Ilimitadas Online</h3>
+                        <div class="price">
+                            <span class="currency">COP</span>
+                            <span class="amount">120.000</span>
+                            <span class="period">mensual</span>
+                        </div>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Consultas online ilimitadas (uso razonable)</li>
+                            <li><i class="fas fa-check"></i> Videollamada y mensajería en plataformas disponibles</li>
+                            <li><i class="fas fa-check"></i> Seguimiento continuo del proceso</li>
+                            <li><i class="fas fa-check"></i> Explicación de exámenes (sin diagnóstico ni prescripción)</li>
+                            <li><i class="fas fa-check"></i> Guía para qué medicamentos comprar y qué exámenes solicitar</li>
+                            <li><i class="fas fa-check"></i> Beneficios exclusivos para clientes leales</li>
+                        </ul>
+                    </div>
+                    <button class="pricing-btn">Elegir Plan</button>
+                </div>
+            </div>
+            <div class="pricing-note">
+                <p><i class="fas fa-info-circle"></i> Todos los precios incluyen IVA. Aceptamos pagos por PayPal, tarjetas de crédito y transferencias bancarias.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Plataformas -->
+    <section id="plataformas" class="platforms-section">
+        <div class="container">
+            <h2 class="section-title">Plataformas Disponibles</h2>
+            <p class="section-subtitle">Conecta con nosotros a través de tu plataforma favorita</p>
+            <div class="platforms-grid">
+                <div class="platform-card whatsapp">
+                    <div class="platform-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>WhatsApp</h3>
+                    <p>Videollamadas directas y mensajería</p>
+                </div>
+                
+                <div class="platform-card zoom">
+                    <div class="platform-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Zoom</h3>
+                    <p>Reuniones profesionales de alta calidad</p>
+                </div>
+                
+                <div class="platform-card skype">
+                    <div class="platform-icon">
+                        <i class="fab fa-skype"></i>
+                    </div>
+                    <h3>Skype</h3>
+                    <p>Videollamadas confiables mundialmente</p>
+                </div>
+                
+                <div class="platform-card teams">
+                    <div class="platform-icon">
+                        <i class="fab fa-microsoft"></i>
+                    </div>
+                    <h3>Microsoft Teams</h3>
+                    <p>Plataforma empresarial segura</p>
+                </div>
+                
+                <div class="platform-card meet">
+                    <div class="platform-icon">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <h3>Google Meet</h3>
+                    <p>Integración con Google Workspace</p>
+                </div>
+                
+                <div class="platform-card telegram">
+                    <div class="platform-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <h3>Telegram</h3>
+                    <p>Videollamadas seguras y privadas</p>
+                </div>
+                
+                <div class="platform-card facetime">
+                    <div class="platform-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h3>FaceTime</h3>
+                    <p>Para usuarios de dispositivos Apple</p>
+                </div>
+                
+                <div class="platform-card messenger">
+                    <div class="platform-icon">
+                        <i class="fab fa-facebook-messenger"></i>
+                    </div>
+                    <h3>Messenger</h3>
+                    <p>Videollamadas a través de Facebook</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Blog -->
+    <section id="blog" class="blog-section">
+        <div class="container">
+            <h2 class="section-title">Blog y Artículos</h2>
+            <p class="section-subtitle">Datos recientes de Veterinaria, Zootecnia, Agronomía y más</p>
+            <div class="blog-toolbar">
+                <div class="blog-filters" aria-label="Filtros de categoría">
+                    <button class="filter-btn active" data-filter="todos">Todos</button>
+                    <button class="filter-btn" data-filter="Veterinaria">Veterinaria</button>
+                    <button class="filter-btn" data-filter="Zootecnia">Zootecnia</button>
+                    <button class="filter-btn" data-filter="Agronomía">Agronomía</button>
+                    <button class="filter-btn" data-filter="Más">Más</button>
+                </div>
+            </div>
+            <div class="blog-grid">
+                <!-- Las tarjetas se renderizan dinámicamente desde script.js -->
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Sección de Contacto -->
+    <section id="contacto" class="contact-section">
+        <div class="container">
+            <h2 class="section-title">Encuéntranos en Redes Sociales</h2>
+            
+            <div class="contact-social" aria-label="Redes sociales">
+                <p class="contact-handle">@Veterinariaonline24/7</p>
+                <a class="contact-social-btn whatsapp" href="https://wa.me/3102069446" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a class="contact-social-btn instagram" href="https://www.instagram.com/veterinariaonline24_7/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> Instagram</a>
+                <a class="contact-social-btn tiktok" href="https://www.tiktok.com/@veterinariaonline247" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i> TikTok</a>
+                <a class="contact-social-btn youtube" href="https://www.youtube.com/@MVZVIAJERO" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i> YouTube</a>
+                <a class="contact-social-btn linkedin" href="https://www.linkedin.com/in/miguel-angel-s%C3%A1nchez-amaya-31ab4417a/" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="LOGONUEVO.png" alt="Veterinaria Online 24/7" class="footer-logo">
+                    <h3>VETERINARIA ONLINE 24/7</h3>
+                    <p>Cuidado profesional para tus mascotas, disponible en todo momento y lugar.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#quienes-somos">Quiénes Somos</a></li>
+                <li><a href="#precios">Precios y Servicios</a></li>
+                <li><a href="#blog">Blog</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:veterinariaonline247@gmail.com">veterinariaonline247@gmail.com</a></p>
+                    <p><i class="fas fa-phone"></i> <a href="https://wa.me/3102069446" target="_blank" rel="noopener noreferrer">310 206 9446</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Veterinaria Online 24/7. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <!-- Barra fija de redes sociales (derecha) -->
+    <div class="social-sidebar" aria-label="Redes sociales">
+        <a class="social-btn whatsapp" href="https://wa.me/3102069446" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/whatsapp.svg" alt="WhatsApp" />
+        </a>
+        <a class="social-btn tiktok" href="https://www.tiktok.com/@veterinariaonline247" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+            <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tiktok.svg" alt="TikTok" />
+        </a>
+        <a class="social-btn instagram" href="https://www.instagram.com/veterinariaonline24_7/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg" alt="Instagram" />
+        </a>
+        <a class="social-btn youtube" href="https://www.youtube.com/@MVZVIAJERO" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+            <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/youtube.svg" alt="YouTube" />
+        </a>
+    </div>
+
+    <!-- Chatbot (esquina inferior izquierda) -->
+    <div id="chatbot" class="chatbot" aria-live="polite">
+        <button class="chatbot-toggle" aria-label="Abrir chatbot">
+            <img src="QUIENESSOMOSIMAGEN.jpeg" alt="Asesor" class="bot-avatar" />
+            <span>Chat</span>
+        </button>
+        <div class="chatbot-panel" role="dialog" aria-label="Chat con Miguel AI 360" aria-modal="false">
+            <div class="chatbot-header">
+                <div class="chatbot-title"><i class="fas fa-robot"></i> Miguel AI 360</div>
+                <div class="chatbot-actions">
+                    <button class="chatbot-close" title="Cerrar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="chatbot-quick-actions">
+                <button class="quick-btn" data-action="precios"><i class="fas fa-tags"></i> Precios y Servicios</button>
+                <button class="quick-btn" data-action="contacto"><i class="fas fa-address-card"></i> Contacto</button>
+                <button class="quick-btn" data-action="whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button class="quick-btn" data-action="redes"><i class="fas fa-share-alt"></i> Redes</button>
+                <button class="quick-btn" data-action="ayuda"><i class="fas fa-question-circle"></i> Ayuda</button>
+            </div>
+            
+            <div class="chatbot-messages" aria-live="polite"></div>
+            <form class="chatbot-input" autocomplete="off">
+                <textarea class="chatbot-textarea" placeholder="Escribe tu pregunta..." rows="2"></textarea>
+                <button type="submit" class="chatbot-send"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
